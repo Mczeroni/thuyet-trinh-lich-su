@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cách mạng Công nghiệp lần thứ tư (Industry 4.0) — Lịch sử 10</title>
+  <link rel="icon" type="image/svg+xml" href="factory.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Reading / Slide Progress Track -->
+  <div class="progress-track" aria-hidden="true">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+
+  <!-- Ambient Tech Particle Canvas + Perspective Grid -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <div class="tech-grid-bg" aria-hidden="true"></div>
+
+  <!-- 16:9 Scaled Presentation Stage -->
+  <main id="viewport">
+    <div id="slideStage" class="slide-stage" role="region" aria-label="Slide trình chiếu"></div>
+  </main>
+
+  <!-- Floating Presenter HUD -->
+  <header class="hud-wrapper">
+    <nav id="hudBar" class="hud-bar" aria-label="Điều khiển trình chiếu">
+      <div class="hud-group">
+        <button
+          id="btnPrev"
+          class="hud-btn hud-btn--icon"
+          type="button"
+          aria-label="Slide trước (Mũi tên trái)"
+          title="Slide trước (←)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+
+        <span id="slideCounter" class="hud-counter" aria-live="polite">01 / 21</span>
+
+        <button
+          id="btnNext"
+          class="hud-btn hud-btn--icon"
+          type="button"
+          aria-label="Slide tiếp theo (Mũi tên phải hoặc Space)"
+          title="Slide tiếp theo (→ / Space)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <span class="hud-divider" aria-hidden="true"></span>
+
+      <div class="hud-group">
+        <button
+          id="btnToc"
+          class="hud-btn"
+          type="button"
+          aria-label="Mở mục lục"
+          aria-controls="tocDrawer"
+          aria-expanded="false"
+          title="Mục lục (T)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <circle cx="4" cy="6" r="1"></circle>
+            <circle cx="4" cy="12" r="1"></circle>
+            <circle cx="4" cy="18" r="1"></circle>
+          </svg>
+          <span class="hud-btn-text">Mục lục</span>
+        </button>
+
+        <button
+          id="btnOverview"
+          class="hud-btn"
+          type="button"
+          aria-label="Tổng quan 21 slides"
+          aria-controls="overviewModal"
+          aria-expanded="false"
+          title="Tổng quan 21 slides (G / O)"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          </svg>
+          <span class="hud-btn-text">Tổng quan</span>
+        </button>
+      </div>
+
+      <span class="hud-divider" aria-hidden="true"></span>
+
+      <div class="hud-group">
+        <button
+          id="btnPause"
+          class="hud-btn hud-btn--icon"
+          type="button"
+          aria-label="Tạm dừng hoặc tiếp tục hiệu ứng"
+          aria-pressed="false"
+          title="Tạm dừng hiệu ứng (P)"
+        >
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+            <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+          </svg>
+          <svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="6 4 20 12 6 20 6 4"></polygon>
+          </svg>
+        </button>
+
+        <button
+          id="btnSound"
+          class="hud-btn hud-btn--icon"
+          type="button"
+          aria-label="Bật hoặc tắt âm thanh chuyển slide"
+          aria-pressed="true"
+          title="Âm thanh chuyển slide (M)"
+        >
+          <svg class="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg class="icon-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <button
+          id="btnFullscreen"
+          class="hud-btn hud-btn--icon"
+          type="button"
+          aria-label="Toàn màn hình"
+          aria-pressed="false"
+          title="Toàn màn hình (F)"
+        >
+          <svg class="icon-fs-enter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          <svg class="icon-fs-exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="4 14 10 14 10 20"></polyline>
+            <polyline points="20 10 14 10 14 4"></polyline>
+            <line x1="14" y1="10" x2="21" y2="3"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Table of Contents Slide-Over Drawer -->
+  <aside id="tocDrawer" class="toc-drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mục lục bài thuyết trình">
+    <div class="toc-drawer-header">
+      <div class="toc-drawer-title-group">
+        <span class="toc-kicker">MỤC LỤC BÀI HỌC</span>
+        <h2 class="toc-heading">Industry 4.0 — 21 Slides</h2>
+      </div>
+      <button id="btnCloseToc" class="modal-close-btn" type="button" aria-label="Đóng mục lục">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <nav id="tocList" class="toc-list" aria-label="Danh sách slide"></nav>
+    <div class="toc-drawer-footer">
+      <span>Phím tắt: <kbd>←</kbd> <kbd>→</kbd> <kbd>Space</kbd> <kbd>G</kbd> <kbd>F</kbd></span>
+    </div>
+  </aside>
+
+  <!-- 21-Slide Grid Overview Modal -->
+  <section id="overviewModal" class="overview-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Tổng quan tất cả 21 slides">
+    <div class="overview-header">
+      <div class="overview-title-group">
+        <span class="toc-kicker">CHẾ ĐỘ TỔNG QUAN</span>
+        <h2 class="overview-heading">Tổng quan 21 Slides — Cách mạng Công nghiệp 4.0</h2>
+      </div>
+      <button id="btnCloseOverview" class="modal-close-btn" type="button" aria-label="Đóng tổng quan">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div id="overviewGrid" class="overview-grid"></div>
+  </section>
+
+  <!-- Live Toast Feedback -->
+  <div id="toastNotice" class="toast-notice" aria-live="polite"></div>
+
+  <script src="slides-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
